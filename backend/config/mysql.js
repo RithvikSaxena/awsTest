@@ -1,10 +1,11 @@
 import mysql from 'mysql';
 
+//RDS credentials
 const connection = mysql.createConnection({
-  host: 'database-1.cvi0ioys6exv.ap-southeast-2.rds.amazonaws.com',
+  host: 'test-db.cvi0ioys6exv.ap-southeast-2.rds.amazonaws.com',
   port: 3306,
   user: 'admin',
-  password: 'password',
+  password: 'Md9RyKMFBufnsWGUiQeV',
   database: 'mydb'
 });
 
@@ -29,6 +30,7 @@ const createTableQueries = [
     )`
   ];
 
+  //Run the following code to create tables
   createTableQueries.forEach(query => {
     connection.query(query, (err, results) => {
       if (err) {

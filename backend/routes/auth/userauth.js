@@ -7,18 +7,36 @@ router.use(express.json());
 router.post('/login',(req,res)=>{
     console.log(req.body)
     const {email, password} = req.body;
+
+    //UNCOMMENT THE BELOW CODE FOR SQLi : query without parameterization 
+    // const query = `SELECT * FROM users WHERE email = ${email} AND password = ${password}`;
+    // db.query(query, (err, result)=>{
+    //     if(err){
+    //         console.log(err)
+    //         res.status(500).json({error: err})
+    //     }else{
+    //         if(result.length > 0){
+    //             res.status(200).send(result);
+    //         }else{
+    //             res.status(401).json({ error: 'Invalid credentials. Wrong password or username' });
+    //         }
+    //     }
+    // })
+
+    //Code without SQLi - comment this during SQLi
     db.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (err, result)=>{
         if(err){
             console.log(err)
+            res.status(500).json({error: err})
         }else{
             if(result.length > 0){
-                res.send(result)
+                res.status(200).send(result);
             }else{
-                res.send(result)
-                console.log("Wrong password or username")
+                res.status(401).json({ error: 'Invalid credentials. Wrong password or username' });
             }
         }
     })
+    //
 })
 
 router.post('/signup',(req,res)=>{

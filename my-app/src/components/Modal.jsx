@@ -13,7 +13,7 @@ const Modal = ({handleOpen}) => {
         document.getElementById("content").value = "";
 
         try{
-            const result = await axios.post("http://localhost:3000/notes/create", {
+            const result = await axios.post("http://localhost:5000/notes/create", {
                 email: user.email,
                 title: title,
                 content: content
