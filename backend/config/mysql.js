@@ -2,10 +2,10 @@ import mysql from 'mysql';
 
 //RDS credentials
 const connection = mysql.createConnection({
-  host: 'test.cvi0ioys6exv.ap-southeast-2.rds.amazonaws.com',
+  host: 'windows-rds.choskuyckqr5.ap-south-1.rds.amazonaws.com',
   port: 3306,
   user: 'admin',
-  password: 'password',
+  password: 'gIlUlAPB8RoWApTicu8n',
   database: 'mydb',
   connectTimeout: 60000
 });

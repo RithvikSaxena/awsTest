@@ -11,13 +11,13 @@ const Login = () => {
   return (
     <div className='w-screen h-screen bg-slate-900 flex flex-col items-center justify-center'>
       <div className='w-1/3 bg-slate-700 rounded-md p-4'>
-        <h1 className='text-lg font-semibold text-white mb-2'>Login</h1>
+        <h1 className='text-lg font-semibold text-white mb-2'>Login Page</h1>
         <Formik
           initialValues={{ email: '', password: '' }}
           onSubmit={async (values, { setStatus }) => {
             try {
               const response = await axios.post(
-                'http://localhost:5000/auth/login',
+                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/login',
                 {
                   email: values.email,
                   password: values.password
@@ -41,7 +41,7 @@ const Login = () => {
         >
           {({ status }) => (
             <Form className='flex flex-col gap-4'>
-              <Field name="email" type="email" placeholder="Email" className="bg-slate-900 rounded block p-2 text-white" />
+              <Field name="email" type="text" placeholder="Email" className="bg-slate-900 rounded block p-2 text-white" />
               <Field name="password" type="password" placeholder="Password" className="bg-slate-900 rounded block p-2 text-white" />
               {status && <div className="text-red-500 text-sm">{status}</div>}
               <button className="bg-blue-800 p-2 rounded text-white text-md font-semibold" type="submit">Submit</button>

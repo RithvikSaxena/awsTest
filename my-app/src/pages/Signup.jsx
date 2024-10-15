@@ -17,7 +17,7 @@ const SignUp = () => {
         onSubmit={async (values, {setStatus}) => {
           try {
             if(values.password===values.confirmpassword){
-              const response = await axios.post('http://localhost:5000/auth/signup', values);
+              const response = await axios.post('http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/signup', values);
               // Handle successful sign up
               await login({
                 email: values.email
