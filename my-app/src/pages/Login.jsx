@@ -6,7 +6,7 @@ import { useAuth } from '../utils/Context';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { user, login, logout } = useAuth();
+  const { login } = useAuth();
 
   return (
     <div className='w-screen h-screen bg-slate-900 flex flex-col items-center justify-center'>
@@ -16,31 +16,32 @@ const Login = () => {
           initialValues={{ email: '', password: '' }}
           onSubmit={async (values, { setStatus }) => {
             try {
-                const response = await axios.post(
-                  'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/login',
-                   {
-                    email: values.email,
-                    password: values.password
+              const response = await axios.post(
+                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/login',
+                {
+                  email: values.email,
+                  password: values.password
                 }, 
                 {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
                 }
               );
-        
-                // Store the token
-                localStorage.setItem('token', response.data.token);
-        
-                await login({
-                    email: response.data[0].email // Adjust based on your response structure
-                });
-                
-                navigate('/home');
+
+              // Store the token
+              localStorage.setItem('token', response.data.token);
+
+              // Assuming the email is returned correctly in the response
+              await login({
+                email: response.data.email // Adjust based on your response structure
+              });
+              
+              navigate('/home');
             } catch (error) {
-                setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
+              setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
             }
-        }}
+          }}
         >
           {({ status }) => (
             <Form className='flex flex-col gap-4'>

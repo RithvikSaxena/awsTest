@@ -4,7 +4,7 @@ import axios from "axios";
 const DocumentModal = ({ handleOpen }) => {
     const [filename, setFilename] = useState("");
     const [content, setContent] = useState("");
-
+    const token = localStorage.getItem('token'); 
     const handleSubmit = async () => {
         try {
             await axios.post(

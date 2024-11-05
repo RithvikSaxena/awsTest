@@ -27,23 +27,24 @@ const Home = () => {
 
     // Open document view modal
     const handleViewDocument = async (filename) => {
-    try {
-        const result = await axios.get(
-            `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/view/${filename}`
-        );
-        setViewDoc({ filename, content: result.data.content });
-    } catch (error) {
-        console.error("Failed to fetch document:", error);
-    }
-};
+        try {
+            const result = await axios.get(
+                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/view/${filename}`,
+                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
+            );
+            setViewDoc({ filename, content: result.data.content });
+        } catch (error) {
+            console.error("Failed to fetch document:", error);
+        }
+    };
 
-    // Fetch notes from backend (unchanged logic)
+    // Fetch notes from backend
     const fetchNotes = async () => {
         try {
             const results = await axios.post(
                 "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/fetch",
                 { email: user.email },
-                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
+                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
             );
             setNotes(results.data);
         } catch (error) {
@@ -57,7 +58,7 @@ const Home = () => {
             await axios.post(
                 'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete',
                 { email: user.email, title: note.title },
-                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
+                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
             );
             fetchNotes();
         } catch (error) {
@@ -70,7 +71,7 @@ const Home = () => {
         try {
             const results = await axios.get(
                 "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/fetch",
-                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
+                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
             );
             setDocuments(results.data);
         } catch (error) {
@@ -83,9 +84,8 @@ const Home = () => {
         try {
             await axios.put(
                 'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/update',
-                { filename, content,
-                headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } 
-                 }
+                { filename, content },
+                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
             );
             fetchDocuments();
             setViewDoc(null);
@@ -99,7 +99,7 @@ const Home = () => {
         try {
             await axios.delete(
                 `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/delete/${filename}`,
-                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
+                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
             );
             fetchDocuments();
         } catch (error) {
@@ -116,7 +116,7 @@ const Home = () => {
     const handleLogout = () => {
         localStorage.removeItem('token'); 
         logout();
-        navigate("/");
+        navigate("/"); // Redirect to login page
     };
 
     return (
@@ -126,7 +126,7 @@ const Home = () => {
             {viewDoc && (
                 <DocumentViewModal
                     filename={viewDoc.filename}
-					content={viewDoc.content}
+                    content={viewDoc.content}
                     handleClose={() => setViewDoc(null)}
                     onUpdate={(filename, content) => handleUpdateDocument(filename, content)}
                     onDelete={(filename) => handleDeleteDocument(filename)}

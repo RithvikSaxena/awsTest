@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 const DocumentViewModal = ({ filename, content, handleClose, onUpdate, onDelete }) => {
     const [docContent, setDocContent] = useState(content);
-
+    const token = localStorage.getItem('token'); 
     const handleSave = () => {
         onUpdate(filename, docContent);
     };
