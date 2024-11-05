@@ -43,7 +43,7 @@ const Home = () => {
             const results = await axios.post(
                 "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/fetch",
                 { email: user.email },
-                { headers: { 'Content-Type': 'application/json' } }
+                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
             );
             setNotes(results.data);
         } catch (error) {
@@ -56,7 +56,8 @@ const Home = () => {
         try {
             await axios.post(
                 'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete',
-                { email: user.email, title: note.title }
+                { email: user.email, title: note.title },
+                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
             );
             fetchNotes();
         } catch (error) {
@@ -68,7 +69,8 @@ const Home = () => {
     const fetchDocuments = async () => {
         try {
             const results = await axios.get(
-                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/fetch"
+                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/fetch",
+                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
             );
             setDocuments(results.data);
         } catch (error) {
@@ -81,7 +83,9 @@ const Home = () => {
         try {
             await axios.put(
                 'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/update',
-                { filename, content }
+                { filename, content,
+                headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } 
+                 }
             );
             fetchDocuments();
             setViewDoc(null);
@@ -94,7 +98,8 @@ const Home = () => {
     const handleDeleteDocument = async (filename) => {
         try {
             await axios.delete(
-                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/delete/${filename}`
+                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/delete/${filename}`,
+                { headers: { 'Content-Type': 'application/json','Authorization': `Bearer ${token}`  } }
             );
             fetchDocuments();
         } catch (error) {
@@ -109,6 +114,7 @@ const Home = () => {
 
     // Handle user logout
     const handleLogout = () => {
+        localStorage.removeItem('token'); 
         logout();
         navigate("/");
     };

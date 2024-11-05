@@ -10,7 +10,9 @@ const DocumentModal = ({ handleOpen }) => {
             await axios.post(
                 "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/create",
                 { filename, content },
-                { headers: { 'Content-Type': 'application/json' } }
+                { headers: { 'Content-Type': 'application/json' },
+            'Authorization': `Bearer ${token}` 
+            }
             );
             handleOpen(); // Close modal on successful submission
         } catch (error) {

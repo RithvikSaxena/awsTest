@@ -16,28 +16,31 @@ const Login = () => {
           initialValues={{ email: '', password: '' }}
           onSubmit={async (values, { setStatus }) => {
             try {
-              const response = await axios.post(
-                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/login',
+                const response = await axios.post(
+                  'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/login',
+                   {
+                    email: values.email,
+                    password: values.password
+                }, 
                 {
-                  email: values.email,
-                  password: values.password
-                },
-                {
-                  headers: {
-                    'Content-Type': 'application/json'
-                  }
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
               );
-
-              await login({
-                email: response.data[0].email
-              });
-              
-              navigate('/home');
+        
+                // Store the token
+                localStorage.setItem('token', response.data.token);
+        
+                await login({
+                    email: response.data[0].email // Adjust based on your response structure
+                });
+                
+                navigate('/home');
             } catch (error) {
-              setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
+                setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
             }
-          }}
+        }}
         >
           {({ status }) => (
             <Form className='flex flex-col gap-4'>

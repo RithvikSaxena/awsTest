@@ -16,20 +16,24 @@ const SignUp = () => {
         initialValues={{ email: '', password: '', confirmpassword: ''}}
         onSubmit={async (values, {setStatus}) => {
           try {
-            if(values.password===values.confirmpassword){
-              const response = await axios.post('http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/signup', values);
-              // Handle successful sign up
-              await login({
-                email: values.email
-              });
-              navigate('/home');
-            } else {
-              setStatus('Passwords must match.');
-            }
+              if(values.password === values.confirmpassword){
+                  const response = await axios.post('http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/signup', values);
+                  
+                  // Store the token if available
+                  localStorage.setItem('token', response.data.token);
+      
+                  await login({
+                      email: values.email
+                  });
+                  navigate('/home');
+              } else {
+                  setStatus('Passwords must match.');
+              }
           } catch (error) {
-            setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
+              setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
           }
-        }}
+      }}
+      
       >
         {({ status }) => (
         <Form className='flex flex-col gap-4'>

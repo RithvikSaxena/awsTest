@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { verifyToken } from '../../middleware/auth.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -16,7 +17,7 @@ if (!fs.existsSync(directoryPath)) {
 }
 
 // Fetch all text documents
-router.get('/fetch', (req, res) => {
+router.get('/fetch', verifyToken, (req, res) => {
     fs.readdir(directoryPath, (err, files) => {
         if (err) {
             console.error('Error reading directory:', err);
@@ -29,7 +30,7 @@ router.get('/fetch', (req, res) => {
 });
 
 // Create a new document
-router.post('/create', (req, res) => {
+router.post('/create', verifyToken, (req, res) => {
     const { filename, content } = req.body;
 
     if (!filename || !content) {
@@ -48,7 +49,7 @@ router.post('/create', (req, res) => {
 });
 
 // Read a document
-router.get('/read/:filename', (req, res) => {
+router.get('/read/:filename', verifyToken, (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(directoryPath, filename);
 
@@ -60,8 +61,7 @@ router.get('/read/:filename', (req, res) => {
         res.json({ content: data });
     });
 });
-
-router.get('/view/:filename', (req, res) => {
+router.get('/view/:filename',verifyToken ,(req, res) => {
     const { filename } = req.params;
     const filePath = path.join(directoryPath, filename);
 
@@ -75,7 +75,7 @@ router.get('/view/:filename', (req, res) => {
 });
 
 // Update a document
-router.put('/update', (req, res) => {
+router.put('/update', verifyToken, (req, res) => {
     const { filename, content } = req.body;
 
     if (!filename || !content) {
@@ -94,7 +94,7 @@ router.put('/update', (req, res) => {
 });
 
 // Delete a document
-router.delete('/delete/:filename', (req, res) => {
+router.delete('/delete/:filename', verifyToken, (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(directoryPath, filename);
 
