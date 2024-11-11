@@ -20,7 +20,7 @@ const Home = () => {
         const fetchBaseUrl = async () => {
             try {
                 const result = await axios.get('/api/base-url', {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } // Add your token here if needed
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` } // Add your token here if needed
                 });
                 setBaseUrl(result.data.baseUrl); // Adjust according to your API response structure
             } catch (error) {
@@ -45,7 +45,7 @@ const Home = () => {
     const handleViewDocument = async (filename) => {
         try {
             const result = await axios.get(`${baseUrl}/documents/view/${filename}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
             });
             setViewDoc({ filename, content: result.data.content });
         } catch (error) {
@@ -59,7 +59,7 @@ const Home = () => {
             const results = await axios.post(`${baseUrl}/notes/fetch`, {
                 email: user.email
             }, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
             });
             setNotes(results.data);
         } catch (error) {
@@ -74,7 +74,7 @@ const Home = () => {
                 email: user.email,
                 title: note.title
             }, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
             });
             fetchNotes();
         } catch (error) {
@@ -86,7 +86,7 @@ const Home = () => {
     const fetchDocuments = async () => {
         try {
             const results = await axios.get(`${baseUrl}/documents/fetch`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
             });
             setDocuments(results.data);
         } catch (error) {
@@ -101,7 +101,7 @@ const Home = () => {
                 filename,
                 content
             }, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
             });
             fetchDocuments();
             setViewDoc(null);
@@ -114,7 +114,7 @@ const Home = () => {
     const handleDeleteDocument = async (filename) => {
         try {
             await axios.delete(`${baseUrl}/documents/delete/${filename}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
             });
             fetchDocuments();
         } catch (error) {
@@ -129,7 +129,7 @@ const Home = () => {
 
     // Handle user logout
     const handleLogout = () => {
-        localStorage.removeItem('token'); 
+        localStorage.removeItem('Token'); 
         logout();
         navigate("/"); // Redirect to login page
     };

@@ -2,15 +2,15 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { verifyToken } from '../../middleware/auth.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Directory path for documents
-const directoryPath = 'C:/nginx-1.27.0/html';
-
+//const directoryPath = 'C:/nginx-1.27.0/html';
+const directoryPath = 'C:/Users/Administrator/Downloads/nginx-1.26.2/nginx-1.26.2/html';
 // Ensure the directory exists
 if (!fs.existsSync(directoryPath)) {
     fs.mkdirSync(directoryPath);
