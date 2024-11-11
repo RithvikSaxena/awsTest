@@ -1,18 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+
+// Utility function to get the base URL (replace this with your actual implementation)
+const getBaseUrl = async () => {
+    try {
+        const response = await axios.get("URL_TO_GET_SECRET"); // Replace with your API endpoint to fetch the secret
+        return response.data.baseUrl; // Adjust based on the response structure
+    } catch (error) {
+        console.error("Failed to fetch base URL:", error);
+        throw error; // Propagate the error
+    }
+};
 
 const DocumentModal = ({ handleOpen }) => {
     const [filename, setFilename] = useState("");
     const [content, setContent] = useState("");
-    const token = localStorage.getItem('token'); 
+    const [baseUrl, setBaseUrl] = useState("");
+    const token = localStorage.getItem('token');
+
+    // Fetch the base URL when the component mounts
+    useEffect(() => {
+        const fetchBaseUrl = async () => {
+            try {
+                const url = await getBaseUrl();
+                setBaseUrl(url);
+            } catch (error) {
+                console.error("Error fetching base URL:", error);
+            }
+        };
+
+        fetchBaseUrl();
+    }, []);
+
     const handleSubmit = async () => {
         try {
             await axios.post(
-                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/create",
+                `${baseUrl}/documents/create`, // Use the fetched base URL
                 { filename, content },
-                { headers: { 'Content-Type': 'application/json' },
-            'Authorization': `Bearer ${token}` 
-            }
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
             );
             handleOpen(); // Close modal on successful submission
         } catch (error) {

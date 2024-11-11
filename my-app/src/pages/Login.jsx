@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,22 @@ import { useAuth } from '../utils/Context';
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [baseUrl, setBaseUrl] = useState('');
+
+  useEffect(() => {
+    const fetchBaseUrl = async () => {
+      try {
+        const result = await axios.get('/api/base-url', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } // Adjust as necessary
+        });
+        setBaseUrl(result.data.baseUrl); // Adjust according to your API response structure
+      } catch (error) {
+        console.error("Failed to fetch base URL:", error);
+      }
+    };
+
+    fetchBaseUrl();
+  }, []);
 
   return (
     <div className='w-screen h-screen bg-slate-900 flex flex-col items-center justify-center'>
@@ -16,8 +32,9 @@ const Login = () => {
           initialValues={{ email: '', password: '' }}
           onSubmit={async (values, { setStatus }) => {
             try {
+              console.log(baseUrl);
               const response = await axios.post(
-                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/auth/login',
+                `${baseUrl}/auth/login`, // Use the base URL here
                 {
                   email: values.email,
                   password: values.password
@@ -28,7 +45,7 @@ const Login = () => {
                   }
                 }
               );
-
+              console.log('post success');
               // Store the token
               localStorage.setItem('token', response.data.token);
 
@@ -39,6 +56,7 @@ const Login = () => {
               
               navigate('/home');
             } catch (error) {
+              console.log(error);
               setStatus(error.response ? error.response.data.error : 'Something went wrong. Please try again.');
             }
           }}

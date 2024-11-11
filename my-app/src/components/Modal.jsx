@@ -1,10 +1,35 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useAuth } from "../utils/Context";
 
-const Modal = ({handleOpen}) => {
-    const {user, login, logout} = useAuth();
-    console.log(user)
+// Utility function to get the base URL (replace this with your actual implementation)
+const getBaseUrl = async () => {
+    try {
+        const response = await axios.get("URL_TO_GET_SECRET"); // Replace with your API endpoint to fetch the secret
+        return response.data.baseUrl; // Adjust based on the response structure
+    } catch (error) {
+        console.error("Failed to fetch base URL:", error);
+        throw error; // Propagate the error
+    }
+};
+
+const Modal = ({ handleOpen }) => {
+    const { user } = useAuth();
+    const [baseUrl, setBaseUrl] = useState("");
+
+    // Fetch the base URL when the component mounts
+    useEffect(() => {
+        const fetchBaseUrl = async () => {
+            try {
+                const url = await getBaseUrl();
+                setBaseUrl(url);
+            } catch (error) {
+                console.error("Error fetching base URL:", error);
+            }
+        };
+
+        fetchBaseUrl();
+    }, []);
 
     const handleSubmit = async () => {
         const title = document.getElementById("title").value;
@@ -12,8 +37,8 @@ const Modal = ({handleOpen}) => {
         document.getElementById("title").value = "";
         document.getElementById("content").value = "";
 
-        try{
-            const result = await axios.post("http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/create", {
+        try {
+            const result = await axios.post(`${baseUrl}/notes/create`, {
                 email: user.email,
                 title: title,
                 content: content
@@ -21,19 +46,19 @@ const Modal = ({handleOpen}) => {
                 headers: {
                     "Content-Type": "application/json"
                 }
-            })
-            console.log(result)
+            });
+            console.log(result);
             handleOpen();
-        } catch(err) {
-            console.error(err)
+        } catch (err) {
+            console.error(err);
         }
     };
 
     const handleClose = () => {
         handleOpen();
-    }
+    };
 
-    return(
+    return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
             <div className="w-1/2 bg-slate-800 p-6 rounded shadow-md">
                 <h2 className="text-white text-xl font-bold mb-4">Create Note</h2>
@@ -53,7 +78,7 @@ const Modal = ({handleOpen}) => {
                 </form>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Modal
+export default Modal;

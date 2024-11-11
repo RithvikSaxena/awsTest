@@ -12,8 +12,24 @@ const Home = () => {
     const [viewDoc, setViewDoc] = useState(null);
     const [notes, setNotes] = useState([]);
     const [documents, setDocuments] = useState([]);
+    const [baseUrl, setBaseUrl] = useState("");
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchBaseUrl = async () => {
+            try {
+                const result = await axios.get('/api/base-url', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } // Add your token here if needed
+                });
+                setBaseUrl(result.data.baseUrl); // Adjust according to your API response structure
+            } catch (error) {
+                console.error("Failed to fetch base URL:", error);
+            }
+        };
+
+        fetchBaseUrl();
+    }, []);
 
     // Toggle note modal
     const handleOpenNote = () => {
@@ -28,10 +44,9 @@ const Home = () => {
     // Open document view modal
     const handleViewDocument = async (filename) => {
         try {
-            const result = await axios.get(
-                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/view/${filename}`,
-                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
-            );
+            const result = await axios.get(`${baseUrl}/documents/view/${filename}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
             setViewDoc({ filename, content: result.data.content });
         } catch (error) {
             console.error("Failed to fetch document:", error);
@@ -41,11 +56,11 @@ const Home = () => {
     // Fetch notes from backend
     const fetchNotes = async () => {
         try {
-            const results = await axios.post(
-                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/fetch",
-                { email: user.email },
-                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
-            );
+            const results = await axios.post(`${baseUrl}/notes/fetch`, {
+                email: user.email
+            }, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
             setNotes(results.data);
         } catch (error) {
             console.error("Failed to fetch notes:", error);
@@ -55,11 +70,12 @@ const Home = () => {
     // Handle note deletion
     const deleteNote = async (note) => {
         try {
-            await axios.post(
-                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete',
-                { email: user.email, title: note.title },
-                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
-            );
+            await axios.post(`${baseUrl}/notes/delete`, {
+                email: user.email,
+                title: note.title
+            }, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
             fetchNotes();
         } catch (error) {
             console.error("Failed to delete note:", error);
@@ -69,10 +85,9 @@ const Home = () => {
     // Fetch documents from backend
     const fetchDocuments = async () => {
         try {
-            const results = await axios.get(
-                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/fetch",
-                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
-            );
+            const results = await axios.get(`${baseUrl}/documents/fetch`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
             setDocuments(results.data);
         } catch (error) {
             console.error("Failed to fetch documents:", error);
@@ -82,11 +97,12 @@ const Home = () => {
     // Handle document update
     const handleUpdateDocument = async (filename, content) => {
         try {
-            await axios.put(
-                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/update',
-                { filename, content },
-                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
-            );
+            await axios.put(`${baseUrl}/documents/update`, {
+                filename,
+                content
+            }, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
             fetchDocuments();
             setViewDoc(null);
         } catch (error) {
@@ -97,10 +113,9 @@ const Home = () => {
     // Handle document deletion
     const handleDeleteDocument = async (filename) => {
         try {
-            await axios.delete(
-                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/delete/${filename}`,
-                { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } } // Added token here
-            );
+            await axios.delete(`${baseUrl}/documents/delete/${filename}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
             fetchDocuments();
         } catch (error) {
             console.error("Failed to delete document:", error);
@@ -110,7 +125,7 @@ const Home = () => {
     useEffect(() => {
         fetchNotes(); // Fetch notes when the component loads
         fetchDocuments(); // Fetch documents when the component loads
-    }, [openNote, openDoc]);
+    }, [openNote, openDoc, baseUrl]);
 
     // Handle user logout
     const handleLogout = () => {
