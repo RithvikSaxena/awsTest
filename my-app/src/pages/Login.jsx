@@ -45,9 +45,11 @@ const Login = () => {
                   }
                 }
               );
-              console.log('post success');
+              
+              
               // Store the token
-              localStorage.setItem('token', response.data.token);
+              localStorage.setItem('Token', response.data.token);
+              
 
               // Assuming the email is returned correctly in the response
               await login({
