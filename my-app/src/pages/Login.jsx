@@ -42,18 +42,19 @@ const Login = () => {
                 {
                   headers: {
                     'Content-Type': 'application/json'
-                  }
+                  },
+                  withCredentials: true // Include cookies in this request
                 }
               );
               
               
               // Store the token
-              localStorage.setItem('Token', response.data.token);
               
-
-              // Assuming the email is returned correctly in the response
+              //insecure way
+              localStorage.setItem('Token', response.data.token);
+            
               await login({
-                email: response.data.email // Adjust based on your response structure
+                email: response.data.email 
               });
               
               navigate('/home');

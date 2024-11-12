@@ -7,6 +7,7 @@ import userauth from './routes/auth/userauth.js';
 import notes from './routes/notes/notes.js'; 
 import documents from './routes/documents/documents.js';
 import AWS from 'aws-sdk';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use('/auth', userauth);
 app.use('/notes', notes);
 app.use(express.json()); 
 app.use('/documents', documents);
+app.use(cookieParser());
 
 AWS.config.update({ region: 'ap-south-1' });
 const secretsManager = new AWS.SecretsManager();

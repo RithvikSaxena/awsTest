@@ -20,6 +20,12 @@ router.post('/login', async (req, res) => {
         if (result != undefined) {
             // Generate JWT token
             const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: '1h' });
+            res.cookie('token', token, {
+                httpOnly: true,  // Cookie can't be accessed via JavaScript (security measure)
+                secure: process.env.NODE_ENV === 'production', // Only set cookie over HTTPS in production
+                sameSite: 'Strict', // Prevent the cookie from being sent with cross-origin requests
+                maxAge: 3600000, // Set expiration to 1 hour (same as the JWT)
+            });
             res.status(200).json({ token, user: result });
         } else {
             res.status(401).json({
