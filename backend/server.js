@@ -8,11 +8,17 @@ import notes from './routes/notes/notes.js';
 import documents from './routes/documents/documents.js';
 import AWS from 'aws-sdk';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 5, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests, please try again later.',
+  });
 
 app.use(cors())
 app.use('/auth', userauth);
@@ -20,6 +26,7 @@ app.use('/notes', notes);
 app.use(express.json()); 
 app.use('/documents', documents);
 app.use(cookieParser());
+app.use(limiter);
 
 AWS.config.update({ region: 'ap-south-1' });
 const secretsManager = new AWS.SecretsManager();
@@ -30,6 +37,7 @@ const secretsManager = new AWS.SecretsManager();
 const staticPath = 'C:/Users/Administrator/Downloads/nginx-1.26.2/nginx-1.26.2/html';
 // Use the current directory as the static path
 //const staticPath = __dirname;
+
 app.use(express.static(staticPath));
 
 // Route to update the file content
@@ -69,6 +77,10 @@ app.get('/api/base-url', async (req, res) => {
         res.status(500).send("Error retrieving base URL");
     }
 });
+
+  app.get('/api/rateLimitapi', (req, res) => {
+    res.send('This is a rate-limited API endpoint');
+  });
 
 app.get(('/'), (req, res)=>{
     res.send("API is running and avaliable")
