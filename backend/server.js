@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 5, // limit each IP to 100 requests per windowMs
+    max: 500, // limit each IP to given requests per windowMs
     message: 'Too many requests, please try again later.',
   });
 
