@@ -12,8 +12,24 @@ const Home = () => {
     const [viewDoc, setViewDoc] = useState(null);
     const [notes, setNotes] = useState([]);
     const [documents, setDocuments] = useState([]);
+    const [baseUrl, setBaseUrl] = useState("");
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchBaseUrl = async () => {
+            try {
+                const result = await axios.get('http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/api/base-url', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` } 
+                });
+                setBaseUrl(result.data.baseUrl); 
+            } catch (error) {
+                console.error("Failed to fetch base URL:", error);
+            }
+        };
+
+        fetchBaseUrl();
+    }, []);
 
     // Toggle note modal
     const handleOpenNote = () => {
@@ -27,24 +43,24 @@ const Home = () => {
 
     // Open document view modal
     const handleViewDocument = async (filename) => {
-    try {
-        const result = await axios.get(
-            `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/view/${filename}`
-        );
-        setViewDoc({ filename, content: result.data.content });
-    } catch (error) {
-        console.error("Failed to fetch document:", error);
-    }
-};
+        try {
+            const result = await axios.get(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/view/${filename}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
+            });
+            setViewDoc({ filename, content: result.data.content });
+        } catch (error) {
+            console.error("Failed to fetch document:", error);
+        }
+    };
 
-    // Fetch notes from backend (unchanged logic)
+    // Fetch notes from backend
     const fetchNotes = async () => {
         try {
-            const results = await axios.post(
-                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/fetch",
-                { email: user.email },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
+            const results = await axios.post(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/fetch`, {
+                email: user.email
+            }, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
+            });
             setNotes(results.data);
         } catch (error) {
             console.error("Failed to fetch notes:", error);
@@ -54,10 +70,12 @@ const Home = () => {
     // Handle note deletion
     const deleteNote = async (note) => {
         try {
-            await axios.post(
-                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete',
-                { email: user.email, title: note.title }
-            );
+            await axios.post(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete`, {
+                email: user.email,
+                title: note.title
+            }, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
+            });
             fetchNotes();
         } catch (error) {
             console.error("Failed to delete note:", error);
@@ -67,9 +85,9 @@ const Home = () => {
     // Fetch documents from backend
     const fetchDocuments = async () => {
         try {
-            const results = await axios.get(
-                "http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/fetch"
-            );
+            const results = await axios.get(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/fetch`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
+            });
             setDocuments(results.data);
         } catch (error) {
             console.error("Failed to fetch documents:", error);
@@ -79,10 +97,12 @@ const Home = () => {
     // Handle document update
     const handleUpdateDocument = async (filename, content) => {
         try {
-            await axios.put(
-                'http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/update',
-                { filename, content }
-            );
+            await axios.put(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/update`, {
+                filename,
+                content
+            }, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
+            });
             fetchDocuments();
             setViewDoc(null);
         } catch (error) {
@@ -93,24 +113,28 @@ const Home = () => {
     // Handle document deletion
     const handleDeleteDocument = async (filename) => {
         try {
-            await axios.delete(
-                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/delete/${filename}`
-            );
+            await axios.delete(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/documents/delete/${filename}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
+            });
             fetchDocuments();
         } catch (error) {
             console.error("Failed to delete document:", error);
         }
     };
+    
 
     useEffect(() => {
+        
         fetchNotes(); // Fetch notes when the component loads
         fetchDocuments(); // Fetch documents when the component loads
-    }, [openNote, openDoc]);
+    
+    }, [openNote, openDoc, baseUrl]);
 
     // Handle user logout
     const handleLogout = () => {
+        localStorage.removeItem('Token'); 
         logout();
-        navigate("/");
+        navigate("/"); // Redirect to login page
     };
 
     return (
@@ -120,7 +144,7 @@ const Home = () => {
             {viewDoc && (
                 <DocumentViewModal
                     filename={viewDoc.filename}
-					content={viewDoc.content}
+                    content={viewDoc.content}
                     handleClose={() => setViewDoc(null)}
                     onUpdate={(filename, content) => handleUpdateDocument(filename, content)}
                     onDelete={(filename) => handleDeleteDocument(filename)}
@@ -148,6 +172,7 @@ const Home = () => {
                                     </button>
                                 </div>
                                 <div dangerouslySetInnerHTML={{ __html: note.content }}></div>
+                                <p>note.content</p>
                             </div>
                         ))}
                     </div>
