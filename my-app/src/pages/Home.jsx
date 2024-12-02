@@ -3,12 +3,14 @@ import axios from "axios";
 import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
 import DocumentViewModal from "../components/DocumentViewModal";
+import DocumentUploadModal from "../components/DocumentUploadModal";
 import { useAuth } from "../utils/Context";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
     const [openNote, setOpenNote] = useState(false);
     const [openDoc, setOpenDoc] = useState(false);
+    const [UploadDoc, setUploadDoc] = useState(false);
     const [viewDoc, setViewDoc] = useState(null);
     const [notes, setNotes] = useState([]);
     const [documents, setDocuments] = useState([]);
@@ -40,6 +42,10 @@ const Home = () => {
     const handleOpenDoc = () => {
         setOpenDoc(!openDoc);
     };
+   // Toggle document modal
+   const handleUploadDoc = () => {
+    setUploadDoc(!UploadDoc);
+};
 
     // Open document view modal
     const handleViewDocument = async (filename) => {
@@ -128,7 +134,7 @@ const Home = () => {
         fetchNotes(); // Fetch notes when the component loads
         fetchDocuments(); // Fetch documents when the component loads
     
-    }, [openNote, openDoc, baseUrl]);
+    }, [openNote, openDoc,UploadDoc, baseUrl]);
 
     // Handle user logout
     const handleLogout = () => {
@@ -141,6 +147,7 @@ const Home = () => {
         <div className="w-screen h-screen flex flex-col bg-slate-800 overflow-hidden">
             {openNote && <Modal handleOpen={handleOpenNote} />}
             {openDoc && <DocumentModal handleOpen={handleOpenDoc} />}
+            {UploadDoc && <DocumentUploadModal handleOpen={handleUploadDoc} />}
             {viewDoc && (
                 <DocumentViewModal
                     filename={viewDoc.filename}
@@ -172,7 +179,7 @@ const Home = () => {
                                     </button>
                                 </div>
                                 <div dangerouslySetInnerHTML={{ __html: note.content }}></div>
-                                <p>note.content</p>
+                               
                             </div>
                         ))}
                     </div>
@@ -181,7 +188,8 @@ const Home = () => {
                 {/* Documents Section */}
                 <div className="w-full px-6 mt-6 flex flex-row">
                     <h1 className="text-2xl font-semibold text-white justify-start">All documents</h1>
-                    <button className="bg-blue-700 p-2 rounded-md text-white font-semibold ml-auto" onClick={handleOpenDoc}>New Document</button>
+                    <button className="bg-blue-700 p-2 rounded-md text-white font-semibold ml-auto" onClick={handleOpenDoc}>Add Document</button>
+                    <button className="bg-blue-700 p-2 rounded-md text-white font-semibold ml-auto" onClick={handleUploadDoc}>Upload Document</button>
                 </div>
                 <div className="mt-6 p-4 w-full bg-slate-700 rounded-md flex-1 gap-2 overflow-y-scroll hide-scrollbar">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -3,10 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { verifyToken } from '../middleware/auth.js';
+import multer from 'multer';
+
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 // Directory path for documents
 const directoryPath = 'C:/nginx-1.27.0/html';
@@ -106,5 +109,53 @@ router.delete('/delete/:filename', verifyToken, (req, res) => {
         res.json({ message: 'Document deleted successfully' });
     });
 });
+
+// Configure multer for file upload
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, directoryPath);  // Use the custom directoryPath as the destination
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = `${Date.now()}-${file.originalname}`;  // Generate a unique filename
+        cb(null, uniqueName);  // Save the file with the unique name
+    },
+});
+// #region uploadFilter
+// File filter function to allow only .txt files
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /text\/plain/;  // Only allow plain text files (.txt)
+    const isValid = allowedTypes.test(file.mimetype);
+
+    if (isValid) {
+        cb(null, true);  // Accept the file
+    } else {
+        cb(new Error('Invalid file type. Only .txt files are allowed.'), false);  // Reject the file
+    }
+};
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,  // Add the file filter to the multer config
+});
+// #endregion
+// uncomment below for upload without filter and comment ablove upload
+// const upload = multer({
+//     storage: storage
+// });
+
+// Upload document API
+router.post('/upload', upload.single('document'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const filePath = req.file.path;  // Path where the file is saved
+    console.log('File uploaded:', filePath);
+
+    res.status(200).json({
+        message: 'File uploaded successfully',
+        filename: req.file.filename, // Send the file name as a response
+    });
+});
+
 
 export default router;
