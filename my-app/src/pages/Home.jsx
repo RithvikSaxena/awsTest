@@ -7,6 +7,7 @@ import DocumentUploadModal from "../components/DocumentUploadModal";
 import { useAuth } from "../utils/Context";
 import { useNavigate } from "react-router-dom";
 
+
 const Home = () => {
     const [openNote, setOpenNote] = useState(false);
     const [openDoc, setOpenDoc] = useState(false);
@@ -74,20 +75,47 @@ const Home = () => {
     };
 
     // Handle note deletion
+    // Handle note deletion
     const deleteNote = async (note) => {
         try {
-            await axios.post(`http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete`, {
-                email: user.email,
-                title: note.title
-            }, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('Token')}` }
-            });
-            fetchNotes();
+            // Generate nonce using Web Crypto API
+            const generateNonce = () => {
+                const array = new Uint8Array(16); // Create a 16-byte array
+                window.crypto.getRandomValues(array); // Fill array with cryptographically secure random values
+                return Array.from(array)
+                    .map(byte => byte.toString(16).padStart(2, '0')) // Convert to hex and pad each byte
+                    .join('');
+            };
+            const nonce = generateNonce();
+            const timestamp = Date.now(); // Current time in milliseconds
+            
+            console.log('Nonce:', nonce);
+            console.log('Timestamp:', timestamp);
+    
+            // Send API request with nonce and timestamp headers
+            const response = await axios.post(
+                `http://app-lb-1923178106.ap-south-1.elb.amazonaws.com:5000/notes/delete`,
+                {
+                    email: user.email,
+                    title: note.title,
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('Token')}`,
+                        'X-Nonce': nonce,  // Nonce header
+                        'X-Timestamp': timestamp,  // Timestamp header
+                    },
+                }
+            );
+    
+            console.log('API Response:', response);
+    
+            fetchNotes();  // Call to refresh the notes after successful deletion
         } catch (error) {
             console.error("Failed to delete note:", error);
         }
     };
-
+    
     // Fetch documents from backend
     const fetchDocuments = async () => {
         try {
@@ -179,7 +207,7 @@ const Home = () => {
                                     </button>
                                 </div>
                                 <div dangerouslySetInnerHTML={{ __html: note.content }}></div>
-                               
+                                
                             </div>
                         ))}
                     </div>

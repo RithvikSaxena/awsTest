@@ -1,6 +1,7 @@
 import express from 'express';
 import db from '../../config/mysql.js'; // Import db for querying MySQL
 import { verifyToken } from '../middleware/auth.js';
+import { validateNonceAndTimestamp } from '../middleware/auth.js';
 import CryptoJS from 'crypto-js';
 
 const router = express.Router();
@@ -15,10 +16,10 @@ function decryptEmail(encryptedEmail) {
 // Route to create a new note
 router.post('/create', async (req, res) => {
     const { email, title, content } = req.body;
-
+    const originalEmail = decryptEmail(email);
     try {
         // Insert into notes table
-        const result = await db.query('INSERT INTO notes (email, title, content) VALUES (?, ?, ?)', [email, title, content]);
+        const result = await db.query('INSERT INTO notes (email, title, content) VALUES (?, ?, ?)', [originalEmail, title, content]);
         res.status(200).json({ message: 'Note created successfully', result });
     } catch (err) {
         console.error(err);
@@ -45,12 +46,17 @@ router.post('/fetch',verifyToken, async (req, res) => {
     }
 });
 
+
+
+
 // Route to delete a specific note for a user
-router.post('/delete', async (req, res) => {
+
+router.post('/delete', validateNonceAndTimestamp, async (req, res) => {
     const { email, title } = req.body;
+    const originalEmail = decryptEmail(email);
 
     try {
-        const result = await db.query('DELETE FROM notes WHERE email = ? AND title = ?', [email, title]);
+        const result = await db.query('DELETE FROM notes WHERE email = ? AND title = ?', [originalEmail, title]);
         if (result.affectedRows > 0) {
             res.status(200).json({ message: 'Note deleted successfully' });
         } else {
