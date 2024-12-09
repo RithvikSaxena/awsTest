@@ -1,10 +1,16 @@
 import express from 'express';
 import db from '../../config/mysql.js'; // Import your MySQL configuration file
 import jwt from 'jsonwebtoken';
+import CryptoJS from 'crypto-js';
 
 const router = express.Router();
 router.use(express.json());
 const SECRET_KEY = 'Abc123@#$Secret-Key1'; // Replace with an environment variable
+
+
+function encryptEmail(email) {
+    return CryptoJS.AES.encrypt(email, SECRET_KEY).toString();
+}
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_TIME = 5 * 60 * 1000; // Lock account for 5 minutes
@@ -14,7 +20,7 @@ router.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     // UNCOMMENT THE BELOW CODE FOR SQLi: query without parameterization
-    const query = `SELECT * FROM users WHERE email = ${email} AND password = '${password}'`; // Dangerous!
+    const query = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`; // Dangerous!
 
     db.query(query, (err, result) => {
         if (err) {
@@ -48,12 +54,18 @@ router.post('/login', (req, res) => {
                         sameSite: 'Strict',
                         maxAge: 3600000, // 1 hour
                     });
+
+                    //Encrypt user email
+                    const encryptedEmail = encryptEmail(email);
+                    user.email = encryptedEmail;
+
+
                     res.status(200).json({ token, user });
                 });
             }
         } else {
             // Check if user exists for failed login
-            const query1 = `SELECT * FROM users WHERE email = '${email}'`; // Dangerous!
+            const query1 = `SELECT * FROM users WHERE email = '${email}'`; 
 
             db.query(query1, (err1, result1) => {
                 if (err1) {

@@ -1,8 +1,16 @@
 import express from 'express';
 import db from '../../config/mysql.js'; // Import db for querying MySQL
+import { verifyToken } from '../middleware/auth.js';
+import CryptoJS from 'crypto-js';
 
 const router = express.Router();
+const SECRET_KEY = 'Abc123@#$Secret-Key1';
 router.use(express.json());
+
+function decryptEmail(encryptedEmail) {
+    const bytes = CryptoJS.AES.decrypt(encryptedEmail, SECRET_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 // Route to create a new note
 router.post('/create', async (req, res) => {
@@ -19,12 +27,17 @@ router.post('/create', async (req, res) => {
 });
 
 // Route to fetch notes for a specific user
-router.post('/fetch', async (req, res) => {
+router.post('/fetch',verifyToken, async (req, res) => {
     const { email } = req.body;
-    console.log('Fetching notes for email:', email);
+    //const  email  = req.email;
+
+    const originalEmail = decryptEmail(email);
+
+    console.log('Fetching notes for email:', originalEmail);
 
     try {
-        const results = await db.query('SELECT * FROM notes WHERE email = ?', [email]);
+        //const results = await db.query('SELECT * FROM notes WHERE email = ?', [email]);
+        const results = await db.query('SELECT * FROM notes WHERE email = ?', [originalEmail]);
         res.status(200).json(results); // Send the results of the query
     } catch (err) {
         console.error(err);
