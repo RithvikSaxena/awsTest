@@ -6,17 +6,33 @@ import { fileURLToPath } from 'url';
 import userauth from './routes/auth/userauth.js';
 import notes from './routes/notes/notes.js'; 
 import documents from './routes/documents/documents.js';
+import NoSqlAuth from './routes/auth/NoSqlAuth.js';
 import AWS from 'aws-sdk';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+//import helmet from 'helmet';
 
 const app = express();
+
+// app.use(
+//     helmet.contentSecurityPolicy({
+//       directives: {
+//         defaultSrc: ["'self'"],
+//         scriptSrc: ["'self'"],
+//         objectSrc: ["'none'"],
+//         imgSrc: ["'self'", "data:"], // Allow self-hosted and data URIs for images
+//         frameAncestors: ["'none'"],  // Prevents your site from being framed anywhere
+//         styleSrc: ["'self'"], // Allow inline styles (optional)
+//       },
+//     })
+//   );
+  
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 500, // limit each IP to given requests per windowMs
+    max: 5000, // limit each IP to given requests per windowMs
     message: 'Too many requests, please try again later.',
   });
 
@@ -25,6 +41,7 @@ app.use('/auth', userauth);
 app.use('/notes', notes);
 app.use(express.json()); 
 app.use('/documents', documents);
+app.use('/NoSQLauth', NoSqlAuth);
 app.use(cookieParser());
 app.use(limiter);
 
@@ -90,3 +107,4 @@ app.get(('/'), (req, res)=>{
 app.listen(5000, () => {
     console.log('Server is running on port ${5000}');
 });
+
