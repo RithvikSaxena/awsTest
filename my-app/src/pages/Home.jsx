@@ -170,6 +170,9 @@ const Home = () => {
         logout();
         navigate("/"); // Redirect to login page
     };
+    const NavigatePhish = () => {
+        navigate("/PhishPage"); // Redirect to Phishing page
+    };
 
     return (
         <div className="w-screen h-screen flex flex-col bg-slate-800 overflow-hidden">
@@ -186,6 +189,7 @@ const Home = () => {
                 />
             )}
             <div className="h-14 bg-slate-900 flex items-center">
+                <button className="text-white ml-auto mr-2 p-2 font-semibold" onClick={NavigatePhish}>Phishing Page</button>
                 <button className="text-white ml-auto mr-2 p-2 font-semibold" onClick={handleLogout}>Logout</button>
             </div>
             <div className="flex-1 p-4 flex flex-col overflow-hidden">

